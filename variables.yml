@@ -1,0 +1,12 @@
+---
+
+- name: Set facts for environment
+  set_fact:
+    custom_user:
+      available: true
+      username: ubuntu
+    docker:
+      # Docker versions: stable, nightly, test
+      version: stable
+    docker_compose:
+      version: "1.26.0"

@@ -1,0 +1,74 @@
+---
+- include: ../../../variables.yml
+  tags:
+    - role-docker
+    - docker
+
+- name: Install docker packages
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - gnupg-agent
+    - software-properties-common
+  tags:
+    - docker
+
+- name: Add Docker's official GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+  tags:
+    - docker
+
+- name: Verify that we have the key with the fingerprint
+  apt_key:
+    id: 0EBFCD88
+    state: present
+  tags:
+    - docker
+
+- name: Set up the stable repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }} {{ docker.version }}"
+    state: present
+    update_cache: yes
+  tags:
+    - docker
+
+- name: Update apt packages
+  apt:
+    update_cache: yes
+  tags:
+    - docker
+
+- name: Install docker engine
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+  tags:
+    - docker
+
+- name: Add remote "{{ custom_user.username|default('ERROR!') }}" user to "docker" group
+  user:
+    name: "{{ custom_user.username }}"
+    group: "docker"
+    append: yes
+  tags:
+    - docker
+  when: custom_user.available == true
+
+- name: Enable docker service
+  service:
+    name: docker
+    state: restarted
+    enabled: yes

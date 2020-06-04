@@ -1,0 +1,21 @@
+---
+- include: ../../../variables.yml
+  tags:
+    - role-docker-compose
+    - docker-compose
+
+- name: Install docker-compose
+  get_url:
+    url : "https://github.com/docker/compose/releases/download/{{ docker_compose.version }}/docker-compose-{{ ansible_facts.system }}-{{ ansible_architecture }}"
+    dest: /usr/local/bin/docker-compose
+    mode: '755'
+  tags:
+    - docker-compose
+
+- name: Create a symbolic link
+  file:
+    src: /usr/local/bin/docker-compose
+    dest: /usr/bin/docker-compose
+    state: link
+  tags:
+    - docker-compose
